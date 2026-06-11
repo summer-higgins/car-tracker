@@ -1,7 +1,7 @@
 """
 FREE-WILi Car Tracker / Car Spotter prototype.
 
-This version uses the real FREE-WILi hardware buttons.
+This script uses the real FREE-WILi hardware buttons to count cars by color.
 
 Confirmed FREE-WILi Python button names:
 Red    -> red car
@@ -9,6 +9,13 @@ Blue   -> blue car
 Green  -> black car
 Yellow -> yellow car
 White  -> silver car
+
+Hardware order from top to bottom:
+1. Red
+2. Blue
+3. Green, marked black
+4. Yellow
+5. Silver, reported as White in Python
 """
 
 import time
@@ -43,19 +50,8 @@ def add_car(color):
     print(f"{color.title()} car spotted!")
 
 
-def undo_last():
-    """Undo the most recent car entry."""
-    if not history:
-        print("Nothing to undo.")
-        return
-
-    last_color = history.pop()
-    counts[last_color] -= 1
-    print(f"Undid one {last_color} car.")
-
-
 def total_cars():
-    """Return total number of cars spotted."""
+    """Return the total number of cars spotted."""
     return sum(counts.values())
 
 
@@ -107,11 +103,13 @@ def main():
                 previous_state = last_button_read[button_color]
                 button_name = button_color.name
 
-                # Count only the moment the button changes from released to pressed.
+                # Count only the moment a button changes from released to pressed.
                 if previous_state != button_state and button_state == 1:
                     handle_button_press(button_name)
 
             last_button_read = buttons
+
+            # Small delay helps prevent accidental duplicate reads.
             time.sleep(0.05)
 
     except KeyboardInterrupt:
